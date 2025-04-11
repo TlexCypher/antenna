@@ -1,0 +1,343 @@
+<project name="SBI" default="build" basedir="." xmlns:jacoco="antlib:org.jacoco.ant">
+	<property file="build.properties" />
+	<property name="src" value="src" />
+	<property name="gen-src" value="gen-src" />
+	<property name="garuda-src" value="garuda-src" />
+	<property name="lib" value="lib" />
+	<property name="jacoco-lib" value="jacoco-lib" />
+	<property name="garuda-lib" value="garuda-lib" />
+	<property name="wintestlib" value="wintestlib" />
+	<property name="classes" value="bin" />
+	<property name="db.directory" value="CelldesignerDB" />
+	<property name="test.class.name" value="CellDesignerTests" />
+	<property name="temp.test" value="temp" />
+	<property name="main.class.name" value="jp.sbi.celldesigner.main.Application" />
+	<property name="emmatemp" value="emmatemp" />
+	<property name="wintestreport" value="reports" />
+	<property name="wintestreport_html" value="wintestreport_html" />
+	<property name="wintestreport_zip" value="WinTestReport.zip" />
+	<property name="plugintestreport" value="plugintestreport" />
+	<property name="plugintestreport_html" value="pluginintestreport_html" />
+	<property name="build_script_dir" value="script" />
+	<property name="garuda-data" value="garuda-data" />
+
+	<!-- JaCoCo Properties -->
+	<property name="result.dir" location="./coverage report" />
+	<property name="result.report.dir" location="${result.dir}" />
+	<property name="result.exec.file" location="${result.dir}/jacoco.exec" />
+
+	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+		<classpath path="${jacoco-lib}/jacocoant.jar" />
+	</taskdef>
+
+	<path id="test.classpath">
+		<pathelement location="${classes}" />
+		<pathelement location="${temp.test}/test.jar" />
+		<fileset dir="${lib}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${garuda-lib}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${wintestlib}">
+			<include name="**/*.jar" />
+		</fileset>
+
+	</path>
+
+	<path id="compile.classpath">
+		<pathelement location="${classes}" />
+		<fileset dir="${lib}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${garuda-lib}">
+			<include name="**/*.jar" />
+		</fileset>
+
+	</path>
+
+	<path id="emma.classpath">
+		<pathelement location="${emmatemp}" />
+		<fileset dir="${lib}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${garuda-lib}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${wintestlib}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="emmalib">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+
+	<target name="help" description="Provide List of targets and their description">
+		<echo>TargetName                Description</echo>
+		<echo>compile_source            Compiles the source</echo>
+		<echo>compile_tests             Compiles the test cases</echo>
+		<echo>run_test                  Runs all test cases and generates report</echo>
+		<echo>build                     Compile and Generate autorunnable jar</echo>
+		<echo>test_and_build            Run all test and Generate autorunnable jar</echo>
+		<echo>clean                     Remove all directory generated in build process</echo>
+		<echo>instrument_for_coverage   Compile and run test cases and generate .ec and .emma file for codecoverage report</echo>
+		<echo>coverage_report           Generate emma code coverage report using .ec and .emma file</echo>
+		<echo>win_test_report			Generates html report from junit xml files present in wintestreport directory</echo>
+		<echo>plugin_test_report		Generates html report from junit xml files present in plugintestreport directory</echo>
+	</target>
+
+	<!--  For compile the src folder -->
+	<target name="compile_source" description="Compiles the source">
+		<delete dir="${classes}" />
+		<mkdir dir="${classes}" />
+		<javac fork="true" srcdir="${gen-src}" destdir="${classes}" debug="true" memoryinitialsize="2068m" memorymaximumsize="4096m">
+			<classpath refid="compile.classpath" />
+		</javac>
+		<javac fork="true" srcdir="${src}" destdir="${classes}" debug="true" memoryinitialsize="2068m" memorymaximumsize="4096m">
+			<classpath refid="compile.classpath" />
+		</javac>
+		<javac fork="true" srcdir="${garuda-src}" destdir="${classes}" debug="true" memoryinitialsize="2068m" memorymaximumsize="4096m">
+			<classpath refid="compile.classpath" />
+		</javac>
+		<copy todir="${classes}">
+			<fileset dir="${src}" excludes="**/*.java" />
+			<fileset dir="${gen-src}" excludes="**/*.java" />
+			<fileset dir="${garuda-src}" excludes="**/*.java" />
+		</copy>
+	</target>
+
+	<target name="os_detection" description="Identifies the os, and sets a property 'platform.name' accordingly">
+		<condition property="platform.name" value="mac">
+			<os family="mac" />
+		</condition>
+	</target>
+
+	<!--  For compile the test cases folders i.e. wintest and test -->
+	<target name="compile_tests" depends="os_detection, compile_source" description=" Compiles the test cases ">
+		<delete dir="${temp.test}" />
+		<delete dir="${classes}/test" />
+		<mkdir dir="${temp.test}" />
+		<mkdir dir="${classes}/test" />
+
+		<javac srcdir="wintest" destdir="${classes}/test" memoryinitialsize="2068m" memorymaximumsize="4096m">
+			<classpath refid="test.classpath" />
+		</javac>
+		<javac srcdir="test" destdir="${classes}/test" memoryinitialsize="2068m" memorymaximumsize="4096m">
+			<classpath refid="test.classpath" />
+		</javac>
+
+		<jar destfile="${temp.test}/test.jar">
+			<fileset dir="${classes}/test">
+			</fileset>
+		</jar>
+		<delete includeEmptyDirs="true">
+			<fileset dir="${classes}/test" />
+		</delete>
+
+	</target>
+
+
+	<!--  For running junit test cases and generate Junit test report -->
+	<target name="run_test" depends="compile_tests" description="Runs all test cases and generate report">
+
+		<delete dir="${test.reports}" />
+		<mkdir dir="${test.reports}" />
+		<delete dir="${result.dir}" />
+		<mkdir dir="${result.dir}" />
+		<delete dir="${db.directory}" />
+
+		<jacoco:coverage destfile="${result.exec.file}">
+			<junit fork="yes" haltonfailure="no" showoutput="yes" printsummary="yes" filtertrace="on" maxmemory="128m">
+				<formatter type="xml" />
+				<classpath>
+					<path refid="test.classpath" />
+				</classpath>
+				<batchtest fork="yes" todir="${test.reports}" errorProperty="test.failed" failureProperty="test.failed">
+					<!--<fileset dir="test">
+						<include name="**/*Test.java" />
+					</fileset>-->
+					<fileset dir="wintest">
+						<exclude name="jp/sbi/celldesigner/common/*.java" />
+						<exclude name="jp/sbi/celldesigner/dialogs/*.java" />
+						<exclude name="jp/sbi/celldesigner/util/*.java" />
+						<include name="jp/sbi/celldesigner/wintestcases/winmac/**/*.java" />
+
+						<!-- non-mac cases run on non mac machines only -->
+						<!--<include name="jp/sbi/celldesigner/wintestcases/winmac/compartment/CPT06347.java" />-->
+						<!--<include name="jp/sbi/celldesigner/wintestcases/winmac/alias/AL2608"/>-->
+					</fileset>
+				</batchtest>
+			</junit>
+		</jacoco:coverage>
+
+		<junitreport todir="${test.reports}">
+			<fileset dir="${test.reports}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames" todir="${test.reports}" />
+		</junitreport>
+		<antcall target="coverage_report" />
+		<fail message="Tests failed. Please see test reports" if="test.failed" />
+	</target>
+
+	<!--  For running junit test cases and generate Code Coverage Report using JaCoCo tool -->
+
+	<target name="coverage_report" description="Provides a Code Coverage Report">
+		<!-- Step 3: Create coverage report -->
+		<jacoco:report>
+
+			<!-- This task needs the collected execution data and ... -->
+			<executiondata>
+				<file file="${result.exec.file}" />
+			</executiondata>
+
+			<!-- the class files and optional source files ... -->
+			<structure name="Code Coverage Report">
+				<classfiles>
+					<fileset dir="${classes}" />
+				</classfiles>
+				<sourcefiles encoding="UTF-8">
+					<fileset dir="${src}" />
+				</sourcefiles>
+			</structure>
+
+			<!-- to produce reports in different formats. -->
+			<html destdir="${result.report.dir}" />
+			<csv destfile="${result.report.dir}/report.csv" />
+			<xml destfile="${result.report.dir}/report.xml" />
+		</jacoco:report>
+
+	</target>
+
+
+	<!--  For generating dist folder which includes javadocs and autorunnable jar of application -->
+
+	<target name="test_and_build" description="Run all test and Generate autorunnable jar">
+		<delete dir="${dist}" />
+		<delete dir="${db.directory}" />
+		<mkdir dir="${dist}" />
+		<mkdir dir="${dist}/lib" />
+		<mkdir dir="${dist}/garuda-lib" />
+		<mkdir dir="${dist}/javadoc" />
+
+		<copy todir="${dist}/lib">
+			<fileset dir="${lib}" />
+		</copy>
+		<copy todir="${dist}/garuda-lib">
+			<fileset dir="${garuda-lib}" />
+		</copy>
+
+		<delete dir="temp" />
+
+		<manifestclasspath property="lib.list" jarfile="./${lib}">
+			<classpath refid="compile.classpath" />
+		</manifestclasspath>
+		<manifestclasspath property="garuda-lib.list" jarfile="./${garuda-lib}">
+			<classpath refid="compile.classpath" />
+		</manifestclasspath>
+
+		<jar destfile="${dist}/celldesigner.jar">
+			<fileset dir="${classes}" />
+			<manifest>
+				<attribute name="Main-Class" value="${main.class.name}" />
+				<attribute name="Class-Path" value="${lib.list}" />
+				<attribute name="Class-Path" value="${garuda-lib.list}" />
+			</manifest>
+		</jar>
+
+		<javadoc access="public" destdir="${dist}/javadoc" author="true" verbose="off" version="true" use="true" windowtitle="Celldesigner API" useexternalfile="yes">
+			<classpath refid="compile.classpath" />
+			<fileset dir="src" defaultexcludes="yes">
+				<include name="**/*.java" />
+			</fileset>
+		</javadoc>
+	</target>
+
+	<!-- For generating garuda compliant dist folder which includes javadocs and autorunnable jar of application -->
+
+	<target name="build" depends="compile_source" description=" Compile and Generate autorunnable jar">
+		<delete dir="${dist}" />
+		<delete dir="${db.directory}" />
+		<mkdir dir="${dist}" />
+		<mkdir dir="${dist}/build" />
+		<mkdir dir="${dist}/build/lib" />
+		<mkdir dir="${dist}/build/garuda-lib" />
+		<mkdir dir="${dist}/build/garuda-data" />
+		<mkdir dir="${dist}/javadoc" />
+		<mkdir dir="${dist}/script" />
+		<!--  Creating a plugin directory in dist folder -->
+		<mkdir dir="${dist}/build/plugin" />
+
+		<copy todir="${dist}/build/lib">
+			<fileset dir="${lib}" />
+		</copy>
+		<copy todir="${dist}/build/garuda-lib">
+			<fileset dir="${garuda-lib}" />
+		</copy>
+
+		<copy todir="${dist}/build/garuda-data">
+			<fileset dir="${garuda-data}" />
+		</copy>
+
+		<copy todir="${dist}/script">
+			<fileset dir="${build_script_dir}" />
+		</copy>
+
+		<chmod file="${dist}/script/launch_garuda.sh" perm="ugo+rx" type="both" />
+		<chmod file="${dist}/script/launch.sh" perm="ugo+rx" type="both" />
+
+		<copy todir="${dist}">
+			<fileset dir="${garuda-data}">
+				<include name="**/*.xml" />
+			</fileset>
+		</copy>
+
+		<delete dir="temp" />
+
+		<manifestclasspath property="lib.list" jarfile="./${lib}">
+			<classpath refid="compile.classpath" />
+		</manifestclasspath>
+		<manifestclasspath property="garuda-lib.list" jarfile="./${garuda-lib}">
+			<classpath refid="compile.classpath" />
+		</manifestclasspath>
+
+		<jar destfile="${dist}/build/celldesigner.jar">
+			<fileset dir="${classes}" />
+			<manifest>
+				<attribute name="Main-Class" value="${main.class.name}" />
+				<attribute name="Class-Path" value="${lib.list}" />
+				<attribute name="Class-Path" value="${garuda-lib.list}" />
+			</manifest>
+		</jar>
+
+		<javadoc access="public" destdir="${dist}/javadoc" author="true" verbose="off" version="true" use="true" windowtitle="Celldesigner API" useexternalfile="yes" maxmemory="512m">
+			<classpath refid="compile.classpath" />
+			<fileset dir="src" defaultexcludes="yes">
+				<include name="**/*.java" />
+			</fileset>
+		</javadoc>
+	</target>
+
+	<!-- For generating html report from junit xml files present in wintestreport directory -->
+	<target name="win_test_report" if="run_test" description="Generates html report from junit xml files present in wintestreport directory">
+		<delete dir="${wintestreport_html}" />
+		<junitreport todir="${wintestreport}">
+			<fileset dir="${wintestreport}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames" todir="${wintestreport_html}" />
+		</junitreport>
+	</target>
+
+	<!-- For generating html report from junit xml files present in plugintestreport directory -->
+	<target name="plugin_test_report" description="Generates html report from junit xml files present in plugintestreport directory">
+		<delete dir="${plugintestreport_html}" />
+		<junitreport todir="${plugintestreport}">
+			<fileset dir="${plugintestreport}">
+				<include name="Test-*.xml" />
+			</fileset>
+			<report format="frames" todir="${plugintestreport_html}" />
+		</junitreport>
+	</target>
+</project>
