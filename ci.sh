@@ -1,3 +1,7 @@
 #!/usr/bin/env bash
-mypy antenna
-ruff antenna
+# CI
+tox -e ruff
+tox -e mypy
+
+# Unit Tests
+tox

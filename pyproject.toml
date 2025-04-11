@@ -17,7 +17,8 @@ requires-python = ">=3.9, <4"
 dependencies = []
 
 [dependency-groups]
-test = []
+dev = []
+test = ["pytest"]
 lint = ["mypy", "ruff"]
 
 [tool.hatch.version]
