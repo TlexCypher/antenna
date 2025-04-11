@@ -19,4 +19,8 @@ antenna <build.xml path>
 You can get `.project` and `.classpath` in the current directory.
 
 ## Contribution
+You need to run ci.sh.
+```bash
+./ci.sh # mypy and ruff
+```
 Any contribution is wellcome.

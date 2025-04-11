@@ -29,11 +29,10 @@ enable = true
 [tool.ruff]
 line-length = 80
 indent-width = 4
-fixable = ["ALL"]
-line-ending = "auto"
 exclude = ["venv/*", "tox/*", "examples/*"]
 
 [tool.ruff.lint]
+fixable = ["ALL"]
 # All the rules are listed on https://docs.astral.sh/ruff/rules/
 extend-select = [
   "B", # bugbear

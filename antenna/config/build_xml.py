@@ -3,4 +3,4 @@ class BuildXML:
         pass
 
     def ext(self) -> str:
-        return "xml"
+        return 'xml'
