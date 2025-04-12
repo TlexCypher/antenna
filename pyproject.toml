@@ -18,7 +18,7 @@ dependencies = []
 
 [dependency-groups]
 dev = []
-test = ["pytest"]
+test = ["pytest", "mypy", "ruff"]
 lint = ["mypy", "ruff"]
 
 [tool.hatch.version]
