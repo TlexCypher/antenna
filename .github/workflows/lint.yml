@@ -19,9 +19,13 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - name: Install dependencies
+      - name: Create virtual environment and install dependencies
         run: |
-          uv tool install --python-preference only-managed --python 3.12 tox --with tox-uv
-      - name: Run ruff and mypy
+          uv venv .venv
+          source .venv/bin/activate
+          uv pip install tox tox-uv
+      - name: Run tests
         run: |
-          uv venv run -- tox run -e ruff,mypy
+          source .venv/bin/activate
+          tox run -e mypy,ruff
+
