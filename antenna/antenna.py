@@ -17,15 +17,15 @@ logger = getLogger(__name__)
 
 class Antenna:
     def __init__(self) -> None:
-        self.build_xml = None
-        self.parser = None
-        self.classpath_file = None
-        self.project_file = None
+        self.build_xml: BuildXML | None = None
+        self.parser: Parser | None = None
+        self.classpath_file: str | None = None
+        self.project_file: str | None = None
 
     def is_xml(self, path: str) -> bool:
         return Path(path).suffix.lower() == 'xml'
 
-    def up(self, path) -> tuple[str, str] | None:
+    def up(self, path: str) -> tuple[str, str] | None:
         try:
             if not os.path.exists(path) or not os.path.isfile(path):
                 raise NoSuchFileException(f'No such file: {path}', path)
@@ -54,3 +54,4 @@ class Antenna:
 
         except Exception:
             logger.error('failed to up antenna')
+            return None

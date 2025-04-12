@@ -7,4 +7,4 @@ class ProjectProjector(Projector):
         pass
 
     def project(self, parsed: ParseResult) -> str:
-        return super().project(parsed)
+        raise NotImplementedError()
