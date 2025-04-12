@@ -1,0 +1,25 @@
+name: Lint
+
+on:
+  push:
+    branches: "*"
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ${{ matrix.platform }}
+    strategy:
+      max-parallel: 7
+      matrix:
+        platform: ["ubuntu-latest"]
+        tox-env: ["py39, py310", "py311", "py312", "py313"]
+    steps:
+      - uses: "actions/checkout@v5"
+      - name: Set up the latest version of uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        uses: uv tool install --python-preference only-managed --python 3.12 tox --with tox-uv
+      - name: Run ruff and mypy
+        uses: tox run -e ruff,mypy
