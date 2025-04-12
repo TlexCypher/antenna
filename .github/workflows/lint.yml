@@ -14,15 +14,14 @@ jobs:
         platform: ["ubuntu-latest"]
         tox-env: ["py39, py310", "py311", "py312", "py313"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up the latest version of uv
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
       - name: Install dependencies
         run: |
-          uv tool install tox --with tox-uv
-          uv tool install uvenv
-      - name: Install dependencies and run tests
+          uv tool install --python-preference only-managed --python 3.12 tox --with tox-uv
+      - name: Run ruff and mypy
         run: |
-          uvenv run -- tox run -e mypy,ruff
+          uv tool run -- tox run -e ruff,mypy
