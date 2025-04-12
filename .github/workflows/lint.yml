@@ -27,4 +27,4 @@ jobs:
       - name: Install dependencies and run tests
         run: |
           source .venv/bin/activate
-          uvenv run tox run -e mypy,ruff
+          uvenv run -- tox run -e mypy,ruff

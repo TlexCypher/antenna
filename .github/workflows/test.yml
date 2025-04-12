@@ -27,4 +27,4 @@ jobs:
       - name: Install dependencies and run tests
         run: |
           source .venv/bin/activate
-          uvenv run tox run -e ${{ matrix.tox-env }}
+          uvenv run -- tox run -e ${{ matrix.tox-env }}
