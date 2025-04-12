@@ -19,9 +19,12 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - name: Install uvenv
+      - name: Setup virtual environment and install uvenv
         run: |
-          uv pip install --system uvenv
+          uv venv .venv
+          source .venv/bin/activate
+          uv pip install uvenv
       - name: Install dependencies and run tests
         run: |
+          source .venv/bin/activate
           uvenv run tox run -e mypy,ruff
