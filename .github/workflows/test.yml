@@ -21,7 +21,7 @@ jobs:
           enable-cache: true
       - name: Install uvenv
         run: |
-          uv pip install uvenv
+          uv pip install --system uvenv
       - name: Install dependencies and run tests
         run: |
           uvenv run tox run -e ${{ matrix.tox-env }}
