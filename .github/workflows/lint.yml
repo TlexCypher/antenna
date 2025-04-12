@@ -19,13 +19,9 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - name: Create virtual environment and install dependencies
+      - name: Install uvenv
         run: |
-          uv venv .venv
-          source .venv/bin/activate
-          uv pip install tox tox-uv
-      - name: Run tests
+          uv pip install uvenv
+      - name: Install dependencies and run tests
         run: |
-          source .venv/bin/activate
-          tox run -e mypy,ruff
-
+          uvenv run tox run -e mypy,ruff
