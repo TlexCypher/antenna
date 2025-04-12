@@ -12,7 +12,9 @@ lint = [
     { name = "ruff" },
 ]
 test = [
+    { name = "mypy" },
     { name = "pytest" },
+    { name = "ruff" },
 ]
 
 [package.metadata]
@@ -23,7 +25,11 @@ lint = [
     { name = "mypy" },
     { name = "ruff" },
 ]
-test = [{ name = "pytest" }]
+test = [
+    { name = "mypy" },
+    { name = "pytest" },
+    { name = "ruff" },
+]
 
 [[package]]
 name = "colorama"
