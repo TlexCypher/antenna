@@ -1,6 +1,6 @@
 import sys
-from antenna.antenna import Antenna
 
+from antenna.antenna import Antenna
 
 if __name__ == '__main__':
     if len(sys.argv) > 2:

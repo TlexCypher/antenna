@@ -1,6 +1,6 @@
+import os
 from logging import getLogger
 from pathlib import Path
-import os
 
 from antenna.config.build_xml import BuildXML
 from antenna.exception.no_such_file import NoSuchFileException
@@ -10,7 +10,6 @@ from antenna.exception.unsupported_extension import (
 from antenna.parser.parser import Parser
 from antenna.projector.classpath.classpath import ClassPathProjector
 from antenna.projector.project.project import ProjectProjector
-
 
 logger = getLogger(__name__)
 
