@@ -6,5 +6,5 @@ class ProjectProjector(Projector):
     def __init__(self) -> None:
         pass
 
-    def project(self, parsed: ParseResult) -> str:
+    def project(self, parsed: ParseResult) -> None:
         raise NotImplementedError()

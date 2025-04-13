@@ -1,4 +1,5 @@
 import os
+import traceback
 from logging import getLogger
 from pathlib import Path
 
@@ -22,9 +23,9 @@ class Antenna:
         self.project_file: str | None = None
 
     def is_xml(self, path: str) -> bool:
-        return Path(path).suffix.lower() == 'xml'
+        return Path(path).suffix.lower() == '.xml'
 
-    def up(self, path: str) -> tuple[str, str] | None:
+    def up(self, path: str) -> None:
         try:
             if not os.path.exists(path) or not os.path.isfile(path):
                 raise NoSuchFileException(f'No such file: {path}', path)
@@ -38,19 +39,18 @@ class Antenna:
             self.parser = Parser(self.build_xml)
 
             parsed = self.parser.parse()
-            classpath_projector, project_projector = (
+            classpath_projector, _ = (
                 ClassPathProjector(),
                 ProjectProjector(),
             )
             logger.info(f'success to parse {self.build_xml}')
-            self.classpath_file = classpath_projector.project(parsed)
-            self.project_file = project_projector.project(parsed)
 
-            logger.info(
-                f'success to create {self.classpath_file}, and {self.project_file}'
-            )
-            return self.classpath_file, self.project_file
+            classpath_projector.project(parsed)
+            # project_projector.project(parsed)
+
+            logger.info('success to create .classpath, and .project')
 
         except Exception:
             logger.error('failed to up antenna')
+            traceback.print_exc()
             return None

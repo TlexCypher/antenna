@@ -9,3 +9,6 @@ wheels/
 # Virtual environments
 .venv
 .tox
+.classpath
+.project
+resource/*
