@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # CI
-tox -e ruff
-tox -e mypy
+uv run --with tox-uv tox -e ruff
+uv run --with tox-uv tox -e mypy
 
 # Unit Tests
-tox
+uv run --with tox-uv tox
